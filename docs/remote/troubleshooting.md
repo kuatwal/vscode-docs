@@ -23,6 +23,8 @@ SSH is powerful and flexible, but this also adds some setup complexity. This sec
 
 > **Tip:** PuTTY for Windows is not a [supported client](#installing-a-supported-ssh-client), but you can [convert your PuTTYGen keys](#reusing-a-key-generated-in-puttygen).
 
+
+
 ### Quick start: Using SSH keys
 
 To set up SSH key based authentication for your remote host. First we'll create a key pair and then copy the public key to the host.
@@ -36,6 +38,39 @@ If you do not have a key, run the following command in a **local** terminal / Po
 ```bash
 ssh-keygen -t rsa -b 4096
 ```
+> **Tip:** Key must be generated on Windows with ssh-keygen otherwise you might get a invalid format error from VS Code
+
+Use ssh-keygen with no options will get you Ed25519 cipher.
+
+Next note, that EdDSA (the signature scheme in use here), requires a group to work with and Ed25519 is the variant of EdDSA that fixes this group to the points on the Edwards-25519 curve (which operates on a 255-bit field). Now because your group is fixed and your public key is a point of the curve, it can only possibly have a maximal length of 256-bit (or 80 characters in SSH encoding).
+
+What is means is the id_ed25519.pub public key file will have pub key that is only 80 characters, instead of the much longer rsa public keys.
+
+```bash
+C:\Users\username>ssh-keygen
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (C:\Users\username/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in C:\Users\username/.ssh/id_ed25519.
+Your public key has been saved in C:\Users\username/.ssh/id_ed25519.pub.
+The key fingerprint is:
+SHA256:/H4LC20tZi7STZRS18QthM1/D0SxySN3Q0epQpaf5xY username@hostname
+The key's randomart image is:
++--[ED25519 256]--+
+|            .X==+|
+|          .+o.O+o|
+|         .ooo.O+.|
+|       .. o. *.E+|
+|        So  . o.+|
+|         o..   o.|
+|       ..oO . .  |
+|      . oB.+.    |
+|       . .+...   |
++----[SHA256]-----+
+```bash
+
+The contents of .pub can be added to $HOME\\.ssh\\authorized_keys on the remote machine.  This is usesful as putty can continue to use the previous key, and VS Code can use the new key.
 
 > **Tip:** Don't have `ssh-keygen`? Install [a supported SSH client](#installing-a-supported-ssh-client).
 
